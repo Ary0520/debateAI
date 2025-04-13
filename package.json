@@ -1,0 +1,28 @@
+{
+  "dependencies": {
+    "@google/generative-ai": "^0.24.0",
+    "axios": "^1.8.4",
+    "bcrypt": "^5.1.1",
+    "body-parser": "^2.2.0",
+    "dotenv": "^16.5.0",
+    "ejs": "^3.1.10",
+    "env": "^0.0.2",
+    "express": "^5.1.0",
+    "jsonwebtoken": "^9.0.2",
+    "mongoose": "^8.13.2",
+    "multer": "^1.4.5-lts.2",
+    "path": "^0.12.7"
+  },
+  "name": "debateai-main",
+  "version": "1.0.0",
+  "description": "An interactive web application that lets users engage in structured debates with an AI powered by Google's Gemini Pro model. Users can choose debate topics and take different stances (for, against, or neutral) while the AI adapts its responses accordingly, creating a dynamic and engaging debate experience.",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs"
+}

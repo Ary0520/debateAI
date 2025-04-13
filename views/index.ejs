@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Virtual Debate Partner</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/css/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+</head>
+<body class="bg-gray-900 text-gray-300 h-screen flex flex-col" x-data="appData()">
+    <script>
+        function appData() {
+        return {
+            showLogin: false,
+            showRegister: false,
+            showNewDebate: false,
+            currentDebateId: null,
+            userId: localStorage.getItem('userId') || null,
+            username: localStorage.getItem('username') || null,
+            init() {
+            // Load debates if user is already logged in
+            if (this.userId) {
+                loadDebates(this.userId);
+            }
+
+            // Listen for custom events
+            window.addEventListener('alpine:login', (event) => {
+                this.userId = event.detail.userId;
+                this.username = event.detail.username;
+                this.showLogin = false;
+                // Load debates after successful login
+                loadDebates(this.userId);
+            });
+
+            window.addEventListener('alpine:register-success', () => {
+                this.showRegister = false;
+                this.showLogin = true;
+            });
+
+            window.addEventListener('alpine:close-debate-modal', () => {
+                this.showNewDebate = false;
+                // Reload debates after creating a new debate
+                if (this.userId) {
+                    loadDebates(this.userId);
+                }
+            });
+
+            window.addEventListener('alpine:logout', () => {
+                this.userId = null;
+                this.username = null;
+                this.currentDebateId = null;
+            });
+        }
+     };
+}
+    </script>
+    <div class="flex flex-col h-screen">
+        <!-- Header -->
+        <header class="p-4 border-b border-gray-700 flex justify-between items-center bg-gray-800">
+            <div class="text-xl font-semibold text-blue-400">Virtual Debate Partner</div>
+            <div class="flex items-center space-x-4">
+                <template x-if="!userId">
+                    <!-- <div>
+                        <button @click="showLogin = true" class="px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white rounded-md transition-colors">Login</button>
+                        <button @click="showRegister = true" class="px-3 py-1 bg-gray-700 hover:bg-gray-600 text-white rounded-md transition-colors">Register</button>
+                    </div> -->
+                </template>
+                <template x-if="userId">
+                    <!-- <div class="flex items-center space-x-3">
+                        <span x-text="'Welcome, ' + username" class="text-sm text-gray-300"></span>
+                        <button @click="logout()" class="px-3 py-1 bg-red-600 hover:bg-red-700 text-white rounded-md transition-colors text-sm">Login </button>
+                    </div> -->
+                </template>
+                <button @click="showNewDebate = true" class="px-3 py-1 bg-green-600 hover:bg-green-700 text-white rounded-md transition-colors">New Debate</button>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <div class="flex flex-1 overflow-hidden">
+            <!-- Sidebar - Debate History -->
+            <!-- <div class="w-64 border-r border-gray-700 bg-gray-800 p-4 overflow-y-auto hidden md:block">
+                <h2 class="text-lg font-semibold mb-4 text-blue-400">Debate History</h2>
+                <div id="debate-list" class="space-y-2">
+                     Debate history will be loaded here 
+                </div>
+            </div> -->
+
+            <!-- Main Chat Area -->
+            <div class="flex-1 flex flex-col">
+                <!-- Topic Bar -->
+                <div id="current-topic" class="p-3 bg-gray-800 border-b border-gray-700 text-center font-medium">
+                    Select or start a new debate
+                </div>
+
+                <!-- Messages Area -->
+                <div id="chat-messages" class="flex-1 overflow-y-auto p-4 space-y-4">
+                    <div class="flex justify-center items-center h-full text-gray-500" id="empty-state">
+                        <div class="text-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 mx-auto mb-4 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
+                            </svg>
+                            <h3 class="text-xl font-medium mb-2">Start a New Debate</h3>
+                            <p class="max-w-sm">Choose a topic and stance to begin debating with your AI partner.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Input Area -->
+                <div class="p-4 border-t border-gray-700 bg-gray-800">
+                    <div class="flex items-center">
+                        <input type="text" id="user-input" placeholder="Type your argument here..." class="flex-1 bg-gray-700 border border-gray-600 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 text-white" disabled>
+                        <button id="send-button" class="ml-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-3 rounded-lg transition-colors flex items-center disabled:opacity-50 disabled:cursor-not-allowed" disabled>
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 transform rotate-90" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+                            </svg>
+                            <span class="ml-1">Send</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Login Modal -->
+    <div x-show="showLogin" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" x-transition>
+        <div class="bg-gray-800 rounded-lg p-6 w-full max-w-md">
+            <h2 class="text-xl font-semibold mb-4 text-blue-400">Login</h2>
+            <form id="login-form" class="space-y-4">
+                <div>
+                    <label for="login-email" class="block text-sm font-medium mb-1">Email</label>
+                    <input type="email" id="login-email" class="w-full bg-gray-700 border border-gray-600 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+                <div>
+                    <label for="login-password" class="block text-sm font-medium mb-1">Password</label>
+                    <input type="password" id="login-password" class="w-full bg-gray-700 border border-gray-600 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+                <div class="flex justify-end space-x-3">
+                    <button type="button" @click="showLogin = false" class="px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded-md transition-colors">Cancel</button>
+                    <button type="submit" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md transition-colors">Login</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Register Modal -->
+    <div x-show="showRegister" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" x-transition>
+        <div class="bg-gray-800 rounded-lg p-6 w-full max-w-md">
+            <h2 class="text-xl font-semibold mb-4 text-blue-400">Register</h2>
+            <form id="register-form" class="space-y-4">
+                <div>
+                    <label for="register-username" class="block text-sm font-medium mb-1">Username</label>
+                    <input type="text" id="register-username" class="w-full bg-gray-700 border border-gray-600 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+                <div>
+                    <label for="register-email" class="block text-sm font-medium mb-1">Email</label>
+                    <input type="email" id="register-email" class="w-full bg-gray-700 border border-gray-600 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+                <div>
+                    <label for="register-password" class="block text-sm font-medium mb-1">Password</label>
+                    <input type="password" id="register-password" class="w-full bg-gray-700 border border-gray-600 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+                <div class="flex justify-end space-x-3">
+                    <button type="button" @click="showRegister = false" class="px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded-md transition-colors">Cancel</button>
+                    <button type="submit" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md transition-colors">Register</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- New Debate Modal -->
+    <div x-show="showNewDebate" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" x-transition>
+        <div class="bg-gray-800 rounded-lg p-6 w-full max-w-md">
+            <h2 class="text-xl font-semibold mb-4 text-blue-400">Start a New Debate</h2>
+            <form id="new-debate-form" class="space-y-4">
+                <div>
+                    <label for="debate-topic" class="block text-sm font-medium mb-1">Debate Topic</label>
+                    <input type="text" id="debate-topic" class="w-full bg-gray-700 border border-gray-600 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="e.g., Climate Change, AI Ethics, etc.">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium mb-1">AI Stance</label>
+                    <div class="grid grid-cols-3 gap-3">
+                        <label class="flex items-center p-3 bg-gray-700 rounded-md cursor-pointer hover:bg-gray-600 transition-colors">
+                            <input type="radio" name="stance" value="for" class="mr-2" checked>
+                            <span>For</span>
+                        </label>
+                        <label class="flex items-center p-3 bg-gray-700 rounded-md cursor-pointer hover:bg-gray-600 transition-colors">
+                            <input type="radio" name="stance" value="against" class="mr-2">
+                            <span>Against</span>
+                        </label>
+                        <label class="flex items-center p-3 bg-gray-700 rounded-md cursor-pointer hover:bg-gray-600 transition-colors">
+                            <input type="radio" name="stance" value="neutral" class="mr-2">
+                            <span>Neutral</span>
+                        </label>
+                    </div>
+                </div>
+                <div class="flex justify-end space-x-3">
+                    <button type="button" @click="showNewDebate = false" class="px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded-md transition-colors">Cancel</button>
+                    <button type="submit" class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-md transition-colors">Start Debate</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="/js/script.js"></script>
+</body>
+</html>

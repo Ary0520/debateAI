@@ -1,0 +1,196 @@
+/* Custom styles for Virtual Debate Partner */
+
+:root {
+    --primary-bg: #111827; /* gray-900 */
+    --secondary-bg: #1f2937; /* gray-800 */
+    --border-color: #374151; /* gray-700 */
+    --text-color: #d1d5db; /* gray-300 */
+    --accent-color: #3b82f6; /* blue-500 */
+    --accent-hover: #2563eb; /* blue-600 */
+    --success-color: #10b981; /* green-500 */
+    --error-color: #ef4444; /* red-500 */
+}
+
+body {
+    background-color: var(--primary-bg);
+    color: var(--text-color);
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Glowing effect for the header */
+header {
+    position: relative;
+    overflow: hidden;
+}
+
+header::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--accent-color), transparent);
+    animation: glow 3s infinite;
+}
+
+@keyframes glow {
+    0% { opacity: 0.3; }
+    50% { opacity: 1; }
+    100% { opacity: 0.3; }
+}
+
+/* Message styling */
+.message {
+    padding: 1rem;
+    border-radius: 0.5rem;
+    max-width: 90%;
+    animation: fadeIn 0.3s ease;
+    margin-bottom: 1rem;
+}
+
+.assistant-message {
+    background-color: var(--secondary-bg);
+    border-left: 3px solid var(--accent-color);
+}
+
+.user-message {
+    background-color: var(--border-color);
+    margin-left: auto;
+    border-right: 3px solid var(--success-color);
+}
+
+/* Debate list styling */
+.debate-item {
+    padding: 0.75rem;
+    border-radius: 0.375rem;
+    background-color: var(--secondary-bg);
+    border-left: 3px solid var(--accent-color);
+    margin-bottom: 0.5rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.debate-item:hover {
+    background-color: var(--border-color);
+    transform: translateX(2px);
+}
+
+.debate-item.active {
+    background-color: rgba(59, 130, 246, 0.2);
+    border-left-color: var(--accent-hover);
+}
+
+.debate-item .topic {
+    font-weight: 500;
+    margin-bottom: 0.25rem;
+}
+
+.debate-item .meta {
+    font-size: 0.75rem;
+    color: #9ca3af; /* gray-400 */
+    display: flex;
+    justify-content: space-between;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Typing animation */
+.typing-animation {
+    display: inline-block;
+    position: relative;
+}
+
+.typing-animation::after {
+    content: '|';
+    position: absolute;
+    right: -4px;
+    animation: blink 1s infinite;
+}
+
+@keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0; }
+}
+
+/* Input styling */
+#user-input {
+    transition: all 0.3s ease;
+    box-shadow: 0 0 0 1px var(--border-color);
+}
+
+#user-input:focus {
+    box-shadow: 0 0 0 2px var(--accent-color);
+}
+
+/* Button hover effects */
+button {
+    position: relative;
+    overflow: hidden;
+}
+
+button::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 5px;
+    height: 5px;
+    background: rgba(255, 255, 255, 0.3);
+    opacity: 0;
+    border-radius: 100%;
+    transform: scale(1, 1) translate(-50%);
+    transform-origin: 50% 50%;
+}
+
+button:hover::after {
+    animation: ripple 1s ease-out;
+}
+
+@keyframes ripple {
+    0% {
+        transform: scale(0, 0);
+        opacity: 0.5;
+    }
+    100% {
+        transform: scale(20, 20);
+        opacity: 0;
+    }
+}
+
+/* Custom cursor follower */
+.cursor-follower {
+    position: fixed;
+    width: 20px;
+    height: 20px;
+    border: 2px solid var(--accent-color);
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+    transition: all 0.1s ease;
+    z-index: 9999;
+    opacity: 0;
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+    width: 6px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--secondary-bg);
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--border-color);
+    border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--accent-color);
+}
+
